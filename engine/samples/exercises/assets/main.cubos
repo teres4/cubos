@@ -1,0 +1,20 @@
+{
+  "imports": {},
+  "entities": {
+    "grid": {
+      "cubos/renderable_grid": {
+        "asset": "3824aec8-70da-11ee-b962-0242ac120002",
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "cubos/position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    }
+  }
+}
