@@ -11,16 +11,15 @@
 //ex 2
 #include <cubos/engine/assets/assets.hpp>
 #include <cubos/engine/assets/plugin.hpp>
-//#include <cubos/engine/assets/bridges>
 #include <cubos/engine/assets/bridges/file.hpp>
 
 #include <cubos/engine/settings/plugin.hpp>
-#include <cubos/core/memory/stream.hpp>
+
 
 #include <cubos/engine/assets/bridges/binary.hpp>
 
 //ex3
-#include <cubos/engine/assets/plugin.hpp>
+
 #include <cubos/engine/input/bindings.hpp>
 #include <cubos/engine/input/plugin.hpp>
 
@@ -28,10 +27,10 @@
 #include <cubos/core/ecs/query.hpp>
 
 #include <cubos/core/data/old/debug_serializer.hpp> //(??)
-#include <cubos/engine/settings/settings.hpp>
+
 #include <cubos/core/memory/stream.hpp>
 
-#include <cubos/engine/assets/plugin.hpp>
+
 #include <cubos/engine/scene/plugin.hpp>
 
 
@@ -59,7 +58,9 @@ static void spawnScene(Commands commands, Read<Assets> assets)
     commands.spawn(sceneRead->blueprint);
 }
 
-/*static void setPaletteSystem(Write<Renderer> renderer)
+/*
+From ex1
+static void setPaletteSystem(Write<Renderer> renderer)
 {
     // Create a simple palette with 3 materials (red, green and blue).
     (*renderer)->setPalette(VoxelPalette{{
@@ -70,8 +71,10 @@ static void spawnScene(Commands commands, Read<Assets> assets)
 }*/
 
 
-//"commands allows us to interact with the world"
-/*static void spawnVoxelGridSystem(Commands commands, Write<Assets> assets)
+
+/*
+From ex 1
+static void spawnVoxelGridSystem(Commands commands, Write<Assets> assets)
 {
     // Create a 2x2x2 grid whose voxels alternate between the materials defined in the palette.
     auto gridAsset = assets->create(VoxelGrid{{2, 2, 2}, {1, 2, 3, 1, 2, 3, 1, 2}});
@@ -103,43 +106,6 @@ static void spawnCamerasSystem(Commands commands, Write<ActiveCameras> camera)
 }
 
 
-/*
-class PalBridge : public BinaryBridge
-{
-public:
-    PalBridge()
-        : BinaryBridge(typeid(VoxelPalette))
-    {
-    }
-
-
-    bool loadFromFile(Assets& assets, const AnyAsset& handle, Stream& stream) override
-    {   
-        //FIXME
-        // Dump the file's contents into a palette
-        VoxelPalette contents;
-        stream.readUntil(contents, nullptr);
-
-
-        //FIXME
-        // Store the asset's data.
-        assets.store(handle, std::move(contents));
-        return true;
-    }
-
-    bool saveToFile(const Assets& assets, const AnyAsset& handle, Stream& stream) override
-    {
-        // Get the asset's data.
-        auto contents = assets.read<VoxelPalette>(handle);
-
-        // Write the data to the file.
-        stream.print(*contents);
-        return true;
-    }
-
-}; 
-*/
-
 
 static void loadPaletteSystem(Read<Assets> assets, Write<Renderer> renderer)
 {   
@@ -155,25 +121,11 @@ static void settingsSystem(Write<Settings> settings)
     
 }
 
-/*
-static void bridgeSystemPal(Write<Assets> assets)
-{
-    // Add a custom bridge to load .txt files.
-    assets->registerBridge(".pal", std::make_unique<BinaryBridge<VoxelPalette>>());
-    
-}
-
-static void bridgeSystemGrd(Write<Assets> assets)
-{
-    // Add a custom bridge to load .txt files.
-    assets->registerBridge(".grd", std::make_unique<BinaryBridge<VoxelGrid>>());
-    
-}*/
 
 
 
-
-/*static void spawnCastleSystem(Commands cmds, Read<Assets> assets)
+/*From ex3
+static void spawnCastleSystem(Commands cmds, Read<Assets> assets)
 {   
 
     // Calculate the necessary offset to center the model on (0, 0, 0).
@@ -185,38 +137,13 @@ static void bridgeSystemGrd(Write<Assets> assets)
     cmds.create().add(RenderableGrid{CastleAsset, offset}).add(LocalToWorld{}).add(Position{{0.0F, 0.0F, 0.0F}});
 }*/
 
+
 static void init(Read<Assets> assets, Write<Input> input)
 {
     auto bindings = assets->read<InputBindings>(BindingsAsset);
     input->bind(*bindings);
     CUBOS_INFO("Loaded bindings: {}", Debug(input->bindings().at(0)));
 }
-
-/*
-static void update(Read<Input> input, Read<Window> window, Write<State> state, Write<ShouldQuit> shouldQuit)
-{
-    // FIXME: This is an hack to have one-shot actions while we don't have input events.
-    if (input->pressed("next-showcase"))
-    {
-        state->nextPressed = true;
-    }
-    else if (state->nextPressed)
-    {
-        state->nextPressed = false;
-    }
-
-    return showcaseXZ(*input);
-    
-}
-
-static void pressXZ(const Input& input, bool& explained)
-{
-    if (input.pressed("x-or-z"))
-    {
-        CUBOS_INFO("X or Z");
-    }
-}
-*/
 
 
 
@@ -249,28 +176,17 @@ int main()
     cubos.addPlugin(rendererPlugin);
     cubos.addPlugin(inputPlugin);
     cubos.addPlugin(scenePlugin);
+
     cubos.startupSystem(settingsSystem).tagged("cubos.settings");
-    //cubos.startupSystem(config).tagged("cubos.settings"); ^does the same thing
-    
     cubos.startupSystem(spawnCamerasSystem);
-    
     //cubos.startupSystem(spawnCastleSystem).tagged("cubos.assets");
     cubos.startupSystem(spawnLightSystem);
-
-
     cubos.startupSystem(spawnScene).tagged("spawn").tagged("cubos.assets");
-
-
-
-
     cubos.startupSystem(init).tagged("cubos.assets");
-    //cubos.startupSystem(bridgeSystemPal).tagged("cubos.assets.bridge");
-    //cubos.startupSystem(bridgeSystemGrd).tagged("cubos.assets.bridge");
     cubos.startupSystem(loadPaletteSystem).tagged("cubos.assets").after("cubos.renderer.init");
     cubos.system(Move).after("cubos.input.update");
     
-    
-    
+
     //cubos.startupSystem(setPaletteSystem).after("cubos.renderer.init");
     //cubos.startupSystem(spawnVoxelGridSystem);
 
